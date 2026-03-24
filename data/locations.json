@@ -1,0 +1,243 @@
+
+[
+  {
+    "addressLine1": "Ward No. 5, Main Road",
+    "village": "Warora",
+    "tehsil": "Warora",
+    "district": "Chandrapur",
+    "state": "Maharashtra",
+    "pincode": "442907",
+    "coordinates": {
+      "lat": 20.2286,
+      "lng": 78.9995
+    }
+  },
+  {
+    "addressLine1": "Anandwan Ashram Road",
+    "village": "Anandwan",
+    "tehsil": "Warora",
+    "district": "Chandrapur",
+    "state": "Maharashtra",
+    "pincode": "442914",
+    "coordinates": {
+      "lat": 20.2054,
+      "lng": 78.9752
+    }
+  },
+  {
+    "addressLine1": "Main Bazaar Road",
+    "village": "Bhadrawati",
+    "tehsil": "Bhadrawati",
+    "district": "Chandrapur",
+    "state": "Maharashtra",
+    "pincode": "442902",
+    "coordinates": {
+      "lat": 20.1032,
+      "lng": 79.1308
+    }
+  },
+  {
+    "addressLine1": "Railway Station Road",
+    "village": "Majri",
+    "tehsil": "Bhadrawati",
+    "district": "Chandrapur",
+    "state": "Maharashtra",
+    "pincode": "442503",
+    "coordinates": {
+      "lat": 20.1187,
+      "lng": 79.1604
+    }
+  },
+  {
+    "addressLine1": "Main Market Road",
+    "village": "Ballarpur",
+    "tehsil": "Ballarpur",
+    "district": "Chandrapur",
+    "state": "Maharashtra",
+    "pincode": "442701",
+    "coordinates": {
+      "lat": 19.8398,
+      "lng": 79.3554
+    }
+  },
+  {
+    "addressLine1": "Ghugus Colliery Road",
+    "village": "Ghugus",
+    "tehsil": "Chandrapur",
+    "district": "Chandrapur",
+    "state": "Maharashtra",
+    "pincode": "442505",
+    "coordinates": {
+      "lat": 19.7533,
+      "lng": 79.3667
+    }
+  },
+  {
+    "addressLine1": "Tukum Ward No. 2",
+    "village": "Tukum",
+    "tehsil": "Chandrapur",
+    "district": "Chandrapur",
+    "state": "Maharashtra",
+    "pincode": "442401",
+    "coordinates": {
+      "lat": 19.9478,
+      "lng": 79.2976
+    }
+  },
+  {
+    "addressLine1": "Durgapur Main Road",
+    "village": "Durgapur",
+    "tehsil": "Chandrapur",
+    "district": "Chandrapur",
+    "state": "Maharashtra",
+    "pincode": "442404",
+    "coordinates": {
+      "lat": 19.9523,
+      "lng": 79.2851
+    }
+  },
+  {
+    "addressLine1": "Padmapur Village Road",
+    "village": "Padmapur",
+    "tehsil": "Chandrapur",
+    "district": "Chandrapur",
+    "state": "Maharashtra",
+    "pincode": "442401",
+    "coordinates": {
+      "lat": 19.9356,
+      "lng": 79.3142
+    }
+  },
+  {
+    "addressLine1": "Chandur Gram Panchayat",
+    "village": "Chandur",
+    "tehsil": "Chandrapur",
+    "district": "Chandrapur",
+    "state": "Maharashtra",
+    "pincode": "442908",
+    "coordinates": {
+      "lat": 20.0021,
+      "lng": 79.3654
+    }
+  },
+  {
+    "addressLine1": "Pathanpara Main Street",
+    "village": "Pathanpara",
+    "tehsil": "Chandrapur",
+    "district": "Chandrapur",
+    "state": "Maharashtra",
+    "pincode": "442401",
+    "coordinates": {
+      "lat": 19.9645,
+      "lng": 79.3189
+    }
+  },
+  {
+    "addressLine1": "Babhulgaon School Road",
+    "village": "Babhulgaon",
+    "tehsil": "Chandrapur",
+    "district": "Chandrapur",
+    "state": "Maharashtra",
+    "pincode": "442401",
+    "coordinates": {
+      "lat": 19.8987,
+      "lng": 79.3023
+    }
+  },
+  {
+    "addressLine1": "Kosambi Temple Road",
+    "village": "Kosambi",
+    "tehsil": "Chandrapur",
+    "district": "Chandrapur",
+    "state": "Maharashtra",
+    "pincode": "442406",
+    "coordinates": {
+      "lat": 19.8812,
+      "lng": 79.2845
+    }
+  },
+  {
+    "addressLine1": "Gangaikheda Village Center",
+    "village": "Gangaikheda",
+    "tehsil": "Chandrapur",
+    "district": "Chandrapur",
+    "state": "Maharashtra",
+    "pincode": "442401",
+    "coordinates": {
+      "lat": 20.0143,
+      "lng": 79.3017
+    }
+  },
+  {
+    "addressLine1": "Mendha Main Road",
+    "village": "Mendha",
+    "tehsil": "Chandrapur",
+    "district": "Chandrapur",
+    "state": "Maharashtra",
+    "pincode": "442401",
+    "coordinates": {
+      "lat": 19.9689,
+      "lng": 79.2814
+    }
+  },
+  {
+    "addressLine1": "Saikheda Bus Stand",
+    "village": "Saikheda",
+    "tehsil": "Chandrapur",
+    "district": "Chandrapur",
+    "state": "Maharashtra",
+    "pincode": "442401",
+    "coordinates": {
+      "lat": 19.9301,
+      "lng": 79.3356
+    }
+  },
+  {
+    "addressLine1": "Chakora Market Road",
+    "village": "Chakora",
+    "tehsil": "Chandrapur",
+    "district": "Chandrapur",
+    "state": "Maharashtra",
+    "pincode": "442401",
+    "coordinates": {
+      "lat": 19.9476,
+      "lng": 79.2689
+    }
+  },
+  {
+    "addressLine1": "Tippa Village Road",
+    "village": "Tippa",
+    "tehsil": "Chandrapur",
+    "district": "Chandrapur",
+    "state": "Maharashtra",
+    "pincode": "442401",
+    "coordinates": {
+      "lat": 20.0012,
+      "lng": 79.3198
+    }
+  },
+  {
+    "addressLine1": "Lakhani Main Street",
+    "village": "Lakhani",
+    "tehsil": "Chandrapur",
+    "district": "Chandrapur",
+    "state": "Maharashtra",
+    "pincode": "442401",
+    "coordinates": {
+      "lat": 19.9145,
+      "lng": 79.3176
+    }
+  },
+  {
+    "addressLine1": "Sohagpur Post Office Road",
+    "village": "Sohagpur",
+    "tehsil": "Chandrapur",
+    "district": "Chandrapur",
+    "state": "Maharashtra",
+    "pincode": "442401",
+    "coordinates": {
+      "lat": 19.9814,
+      "lng": 79.3342
+    }
+  }
+]

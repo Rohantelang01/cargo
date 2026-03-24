@@ -1,0 +1,322 @@
+
+# Software Requirement Specification (SRS) for RideShareX
+
+## 1. Introduction
+
+### 1.1 Project Overview
+
+RideShareX is a modern ride-sharing application designed to connect passengers with drivers seamlessly. The platform facilitates ride booking, real-time tracking, and secure payments, offering a comprehensive solution for urban transportation. The application is built with a focus on user experience, reliability, and scalability.
+
+### 1.2 Purpose
+
+The purpose of this document is to provide a detailed description of the RideShareX application, its features, and the technologies used to build it. It serves as a guide for developers, designers, and other stakeholders involved in the project.
+
+### 1.3 Scope
+
+This SRS covers the functional and non-functional requirements of the RideShareX application, including user authentication, profile management, ride booking, payment processing, and real-time tracking. It also details the system architecture, data model, and technology stack.
+
+## 2. Overall Description
+
+### 2.1 Product Perspective
+
+RideShareX is a standalone web application that will compete with existing ride-sharing services. It aims to differentiate itself through a user-friendly interface, advanced features, and a robust and scalable architecture.
+
+### 2.2 Product Functions
+
+The key functions of the RideShareX application include:
+
+*   **User Authentication:** Secure user registration and login.
+*   **Profile Management:** Users can manage their personal information, vehicle details (for drivers), and payment methods.
+*   **Ride Booking:** Passengers can book rides by specifying their pickup and drop-off locations.
+*   **Real-time Tracking:** Real-time location tracking of drivers and passengers.
+*   **Fare Calculation:** Automatic fare calculation based on distance and other factors.
+*   **Payments:** Secure in-app payment processing.
+*   **Dashboards:** Separate dashboards for passengers, drivers, and vehicle owners to manage their activities.
+
+### 2.3 User Characteristics
+
+The application will have the following types of users:
+
+*   **Passengers:** Individuals who book rides.
+*   **Drivers:** Individuals who offer ride services.
+*   **Vehicle Owners:** Individuals or companies who own vehicles and may or may not be drivers.
+*   **Administrators:** Superusers who manage the platform.
+
+### 2.4 Assumptions and Dependencies
+
+*   The application will rely on third-party services for mapping, geolocation, and payment processing.
+*   Users will have access to a modern web browser and a stable internet connection.
+
+## 3. System Features and Requirements
+
+### 3.1 Functional Requirements
+
+#### 3.1.1 User Authentication
+
+*   Users shall be able to create an account using their email and password.
+*   Users shall be able to log in to their accounts securely.
+*   The system shall provide a mechanism for password recovery.
+
+#### 3.1.2 Profile Management
+
+*   Users shall be able to view and edit their personal information.
+*   Drivers shall be able to add and manage their vehicle information.
+*   Drivers shall be able to provide and update their driving license and other relevant documents.
+*   Users shall be able to add and manage their payment methods.
+
+#### 3.1.3 Ride Booking
+
+*   Passengers shall be able to search for available drivers based on their location.
+*   Passengers shall be able to book a ride by specifying their pickup and drop-off locations.
+*   The system shall notify the nearest available driver of a new ride request.
+
+#### 3.1.4 Real-time Ride Tracking
+
+*   Passengers shall be able to track the real-time location of their driver.
+*   Drivers shall be able to see the passenger's location on a map.
+
+#### 3.1.5 Fare Calculation
+
+*   The system shall automatically calculate the fare for a ride based on the distance traveled.
+*   The system shall display the estimated fare to the passenger before they confirm a booking.
+
+#### 3.1.6 Payments
+
+*   The system shall support secure in-app payments.
+*   Users shall be able to view their transaction history.
+
+#### 3.1.7 Dashboards
+
+*   Passengers shall have a dashboard to view their ride history, and manage their profile.
+*   Drivers shall have a dashboard to view their earnings, and manage their profile and vehicle information.
+*   Vehicle owners shall have a dashboard to track their vehicles and earnings.
+
+### 3.2 Non-Functional Requirements
+
+*   **Performance:** The application shall be fast and responsive, with low latency for all user interactions.
+*   **Security:** All user data shall be encrypted and stored securely. The application shall be protected against common security vulnerabilities.
+*   **Usability:** The user interface shall be intuitive and easy to use.
+*   **Reliability:** The application shall be available 24/7 with minimal downtime.
+
+## 4. External Interface Requirements
+
+### 4.1 User Interfaces
+
+The application will have a clean and modern user interface, designed to be responsive and accessible on all devices.
+
+### 4.2 Software Interfaces
+
+The application will integrate with the following third-party services:
+
+*   **Mapping Service:** Uses Leaflet and React-Leaflet, which can consume various tile layers. Currently configured to use OpenStreetMap for map display and routing.
+*   **Cloudinary:** For image and video management (e.g., user profile pictures, vehicle photos).
+*   **Payment System:** Currently uses an internal wallet system (`Wallet` model). A third-party payment gateway (e.g., Stripe, Razorpay) is planned for future integration to handle real-world transactions.
+
+## 5. Data Model
+
+The database uses the following models:
+
+#### 5.1 User Schema
+*   `name`: String (required)
+*   `email`: String (required, unique)
+*   `phone`: String (required, unique)
+*   `password`: String (required, selected: false)
+*   `profileImage`: String
+*   `age`: Number (required)
+*   `gender`: String (required)
+*   `permanentAddress`: Address (Embedded)
+    *   `addressLine1`: String (required)
+    *   `addressLine2`: String
+    *   `village`: String
+    *   `tehsil`: String
+    *   `district`: String (required)
+    *   `state`: String (required)
+    *   `pincode`: String (required)
+    *   `coordinates`: { lat: Number, lng: Number }
+*   `currentLocation`: Point (Embedded)
+    *   `type`: 'Point'
+    *   `coordinates`: [Number, Number] (longitude, latitude)
+*   `roles`: Array of Strings (enum: 'passenger', 'driver', 'owner') (required)
+*   `verification`: Verification (Embedded)
+    *   `isAadhaarVerified`: Boolean (default: false)
+    *   `isPanVerified`: Boolean (default: false)
+    *   `aadhaarNumber`: String
+    *   `panNumber`: String
+*   `driverInfo`: DriverInfo (Embedded)
+    *   `licenseNumber`: String (required)
+    *   `hourlyRate`: Number
+    *   `licenseImage`: String
+    *   `idProof`: String
+    *   `status`: String (enum: 'OFFLINE', 'AVAILABLE', 'ON_TRIP', 'SCHEDULED', 'UNAVAILABLE') (default: 'OFFLINE')
+    *   `rating`: Number (default: 0)
+    *   `totalTrips`: Number (default: 0)
+    *   `vehicleTypes`: Array of Strings (enum: 'car', 'bike', 'auto', 'bus', 'truck')
+*   `ownerInfo`: OwnerInfo (Embedded)
+    *   `vehicles`: Array of ObjectIds (ref: 'Vehicle')
+*   `publicInfo`: PublicInfo (Embedded)
+    *   `rating`: Number (default: 0)
+    *   `totalTrips`: Number (default: 0)
+    *   `memberSince`: Date (default: Date.now)
+*   `wallet`: ObjectId (ref: 'Wallet')
+*   `isActive`: Boolean (default: true)
+
+#### 5.2 Vehicle Schema
+*   `owner`: ObjectId (ref: 'User', required)
+*   `assignedDriver`: ObjectId (ref: 'User')
+*   `make`: String (required)
+*   `vehicleModel`: String (required)
+*   `year`: Number (required)
+*   `color`: String (required)
+*   `plateNumber`: String (required, unique)
+*   `vehicleType`: String (enum: 'car', 'bike', 'auto', 'bus', 'truck', required)
+*   `seatingCapacity`: Number (required)
+*   `rcDocument`: String (required)
+*   `insurance`: String (required)
+*   `vehicleImages`: Array of Strings
+*   `perKmRate`: Number (required)
+*   `isAvailable`: Boolean (default: true)
+
+#### 5.3 Booking Schema
+*   `passenger`: ObjectId (ref: 'User', required)
+*   `driver`: ObjectId (ref: 'User')
+*   `owner`: ObjectId (ref: 'User')
+*   `vehicle`: String
+*   `bookingType`: String (enum: 'INSTANT', 'SCHEDULED', required)
+*   `status`: String (enum: 'REQUESTED', 'ACCEPTED', 'ENROUTE', 'STARTED', 'COMPLETED', 'CANCELLED', default: 'REQUESTED')
+*   `pickup`: Location (Embedded)
+    *   `address`: String (required)
+    *   `coordinates`: { lat: Number, lng: Number } (required)
+*   `dropoff`: Location (Embedded)
+    *   `address`: String (required)
+    *   `coordinates`: { lat: Number, lng: Number } (required)
+*   `scheduledDateTime`: Date
+*   `estimatedDistance`: Number
+*   `estimatedDuration`: Number
+*   `fare`: Fare (Embedded)
+    *   `estimatedFare`: Number (required)
+    *   `finalFare`: Number
+    *   `platformFee`: Number
+    *   `driverPayout`: Number
+    *   `ownerPayout`: Number
+*   `payment`: Payment (Embedded)
+    *   `method`: String (enum: 'WALLET', 'CASH', required)
+    *   `status`: String (enum: 'PENDING', 'PAID', 'FAILED', 'REFUNDED', required)
+    *   `amount`: Number (required)
+    *   `transactionRef`: ObjectId (ref: 'Transaction')
+*   `tripData`: TripData (Embedded)
+    *   `startTime`: Date
+    *   `endTime`: Date
+    *   `actualDistance`: Number
+    *   `route`: Array of { lat: Number, lng: Number, timestamp: Date }
+*   `cancellation`: Cancellation (Embedded)
+    *   `isCancelled`: Boolean
+    *   `cancelledBy`: String (enum: 'PASSENGER', 'DRIVER', 'OWNER', 'PLATFORM')
+    *   `reason`: String
+    *   `cancellationFee`: Number
+    *   `timestamp`: Date
+
+#### 5.4 Trip Schema
+*   `bookingId`: ObjectId (ref: 'Booking', required)
+*   `liveTracking`: LiveTracking (Embedded)
+    *   `isActive`: Boolean
+    *   `currentLocation`: { lat: Number, lng: Number, timestamp: Date }
+    *   `route`: Array of { lat: Number, lng: Number, timestamp: Date, speed: Number }
+*   `approvals`: Approvals (Embedded)
+    *   `passengerApproval`: Boolean
+    *   `ownerApproval`: Boolean
+*   `completionMethod`: String (enum: 'auto', 'manual', 'passenger_confirmed')
+
+#### 5.5 Review Schema
+*   `bookingId`: ObjectId (ref: 'Booking', required)
+*   `reviewerId`: ObjectId (ref: 'User', required)
+*   `revieweeId`: ObjectId (ref: 'User', required)
+*   `rating`: Number (min: 1, max: 5, required)
+*   `comment`: String (maxlength: 500)
+*   `reviewType`: String (enum: 'passenger_to_driver', 'passenger_to_owner', 'driver_to_passenger', 'owner_to_passenger', required)
+*   `isPublic`: Boolean (default: true)
+
+#### 5.6 Notification Schema
+*   `userId`: ObjectId (ref: 'User', required)
+*   `type`: String (enum: 'booking_request', 'booking_accepted', 'trip_started', 'trip_completed', 'payment_received', 'cancellation', 'rating_received', required)
+*   `title`: String (required)
+*   `message`: String (required)
+*   `isRead`: Boolean (default: false)
+*   `relatedBookingId`: ObjectId (ref: 'Booking')
+
+#### 5.7 PlannedTrip Schema
+*   `ownerId`: ObjectId (ref: 'User', required)
+*   `vehicleId`: String (required)
+*   `title`: String (required)
+*   `route`: { pickup: Location, dropoff: Location }
+*   `scheduledDateTime`: Date (required)
+*   `seatsAvailable`: Number (required)
+*   `seatsBooked`: Number (default: 0)
+*   `farePerSeat`: Number (required)
+*   `passengers`: Array of Passengers (Embedded)
+    *   `passengerId`: ObjectId (ref: 'User', required)
+    *   `bookedAt`: Date (default: Date.now)
+    *   `seatNumber`: Number (required)
+*   `status`: String (enum: 'active', 'completed', 'cancelled', default: 'active')
+
+#### 5.8 Wallet Schema
+*   `user`: ObjectId (ref: 'User', required, unique)
+*   `generatedBalance`: Number (default: 0, min: 0)
+*   `addedBalance`: Number (default: 0, min: 0)
+*   `transactions`: Array of Transactions (Embedded)
+    *   `amount`: Number (required)
+    *   `type`: String (enum: 'CREDIT', 'DEBIT', required)
+    *   `walletType`: String (enum: 'GENERATED', 'ADDED', required)
+    *   `status`: String (enum: 'PENDING', 'COMPLETED', 'FAILED', 'BLOCKED', 'REFUNDED', default: 'COMPLETED')
+    *   `description`: String (required)
+    *   `relatedBooking`: ObjectId (ref: 'Booking')
+    *   `timestamp`: Date (default: Date.now)
+
+## 6. Technology Stack
+
+*   **Frontend:** Next.js, React, TypeScript, Tailwind CSS
+*   **Backend:** Next.js (API Routes), Node.js, TypeScript
+*   **Database:** MongoDB with Mongoose
+*   **Authentication:** JWT (JSON Web Tokens)
+*   **File Storage:** Cloudinary
+*   **Mapping:** Leaflet, React-Leaflet, OpenStreetMap
+*   **UI Components:** Radix UI, shadcn/ui
+*   **Form Management:** React Hook Form, Zod
+*   **Other Libraries:** Axios, date-fns, clsx, tailwind-merge
+
+## 7. Folder Structure
+
+```
+/
+├── app/
+│   ├── (api)/                # API routes
+│   ├── (auth)/               # Auth pages (login, signup)
+│   ├── (dashboard)/          # User dashboards
+│   ├── about/
+│   ├── contact/
+│   ├── find-ride/
+│   ├── profile/
+│   ├── globals.css
+│   └── layout.tsx
+├── components/
+│   ├── (auth)/               # Auth components
+│   ├── (common)/             # Common reusable components
+│   ├── (find-ride)/
+│   ├── (footer)/
+│   ├── (navbar)/
+│   └── (ui)/                 # UI components from shadcn/ui
+├── data/                     # JSON data
+├── hooks/                    # Custom React hooks
+├── lib/                      # Library functions
+├── models/                   # Mongoose models
+├── public/                   # Public assets
+├── scripts/                  # Scripts
+├── types/                    # TypeScript type definitions
+├── .env.local                # Environment variables
+├── next.config.js
+├── package.json
+└── tsconfig.json
+```
+
+## 8. Current Status
+
+The project is currently in the development phase. The basic features such as user authentication, profile management, and the basic UI for booking a ride are in place. The immediate next steps will be to implement the ride booking logic, real-time tracking, and payment integration.

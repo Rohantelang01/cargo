@@ -16,13 +16,7 @@ const VehicleInformationDisplay = ({ ownerId }: VehicleInformationDisplayProps) 
   useEffect(() => {
     const fetchVehicles = async () => {
       try {
-        const token = localStorage.getItem('token');
-        
-        const response = await fetch(`/api/vehicles?owner=${ownerId}`, {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-          },
-        });
+        const response = await fetch(`/api/vehicles?owner=${ownerId}`);
         
         if (response.ok) {
           const data = await response.json();

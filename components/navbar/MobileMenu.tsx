@@ -33,10 +33,10 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
           {/* Header */}
           <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
             <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-lg">R</span>
+              <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold text-lg">C</span>
               </div>
-              <h2 className="text-lg font-bold text-gray-900 dark:text-white">RideShareX</h2>
+              <h2 className="text-lg font-bold text-gray-900 dark:text-white">Cargo</h2>
             </div>
             <button
               onClick={onClose}
@@ -73,7 +73,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
           {/* Footer */}
           <div className="p-4 border-t border-gray-200 dark:border-gray-700">
             <p className="text-xs text-center text-gray-500 dark:text-gray-400">
-              © 2025 RideShareX. All rights reserved.
+              © 2026 Cargo. All rights reserved.
             </p>
           </div>
         </div>

@@ -18,7 +18,7 @@ const Footer = () => {
             <a href="/privacy">Privacy Policy</a>
           </Button>
         </div>
-        <p className="mt-2">© 2025 RideShareX</p>
+        <p className="mt-2">© 2026 Cargo. All rights reserved.</p>
       </div>
     </footer>
   );

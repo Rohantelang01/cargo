@@ -102,6 +102,44 @@ export async function GET(req: NextRequest) {
         vehicleCount: vehicles.length,
         rating: user.ownerInfo?.rating || 0
       };
+    } else if (role === 'self-driver' || role === 'self-driver-owner') {
+      const vehicles = await Vehicle.find({ owner: user._id }).select('_id').lean();
+      const vehicleIds = vehicles.map((v: any) => v._id);
+
+      const totalTrips = await Booking.countDocuments({ 
+        $or: [
+          { driver: user._id }, 
+          { vehicle: { $in: vehicleIds } }
+        ], 
+        status: 'COMPLETED' 
+      });
+      const activeBookings = await Booking.countDocuments({ 
+        $or: [
+          { driver: user._id }, 
+          { vehicle: { $in: vehicleIds } }
+        ], 
+        status: { $in: ['ACCEPTED', 'ENROUTE', 'STARTED'] } 
+      });
+      
+      const wallet = await Wallet.findOne({ user: user._id });
+      const totalEarnings = wallet?.generatedBalance || 0;
+
+      const incomingRequests = await BookingRequest.countDocuments({
+        $or: [
+          { 'pair.driver': user._id },
+          { 'pair.owner': user._id }
+        ],
+        status: 'PENDING'
+      });
+
+      stats = {
+        totalTrips,
+        totalEarnings,
+        activeBookings,
+        incomingRequests,
+        rating: Math.max(user.driverInfo?.rating || 0, user.ownerInfo?.rating || 0),
+        status: user.driverInfo?.status || 'OFFLINE'
+      };
     }
 
     return NextResponse.json({ stats, role }, { status: 200 });

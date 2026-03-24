@@ -108,5 +108,35 @@ export function QuickStats({ stats, role }: QuickStatsProps) {
     );
   }
 
+  if (role === 'self-driver' || role === 'self-driver-owner') {
+    return (
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <StatsCard
+          title="Total Earnings"
+          value={`₹${stats.totalEarnings?.toLocaleString() || 0}`}
+          icon={<Wallet className="w-5 h-5" />}
+          trend="up"
+        />
+        <StatsCard
+          title="Total Trips"
+          value={stats.totalTrips || 0}
+          icon={<CheckCircle className="w-5 h-5" />}
+        />
+        <StatsCard
+          title="Rating"
+          value={stats.rating?.toFixed(1) || '0.0'}
+          icon={<AlertCircle className="w-5 h-5" />}
+          subtitle="Combined rating"
+        />
+        <StatsCard
+          title="Requests"
+          value={stats.incomingRequests || 0}
+          icon={<Users className="w-5 h-5" />}
+          subtitle="Incoming requests"
+        />
+      </div>
+    );
+  }
+
   return null;
 }

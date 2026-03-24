@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useState, useCallback } from 'react';
 
-type Role = 'passenger' | 'driver' | 'owner';
+type Role = 'passenger' | 'driver' | 'owner' | 'self-driver' | 'self-driver-owner';
 
 interface DashboardContextType {
   currentRole: Role;

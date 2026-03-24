@@ -61,11 +61,9 @@ const UserProfile: React.FC<UserProfileProps> = ({ isMobile = false, onActionCli
   };
 
   const getDashboardLink = () => {
-    if (!user?.roles) return '/dashboard/passenger';
+    if (!user?.roles) return '/dashboard/overview';
     if (user.roles.includes('admin')) return '/dashboard/admin';
-    if (user.roles.includes('owner')) return '/dashboard/owner';
-    if (user.roles.includes('driver')) return '/dashboard/driver';
-    return '/dashboard/passenger';
+    return '/dashboard/overview';
   };
 
   if (isLoading) {

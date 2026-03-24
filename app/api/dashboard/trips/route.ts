@@ -36,6 +36,15 @@ export async function GET(req: NextRequest) {
     else if (role === 'owner') {
       const vehicles = await Vehicle.find({ owner: user._id }).select('_id').lean();
       query.vehicle = { $in: vehicles.map((v: any) => v._id) };
+    } else if (role === 'self-driver') {
+      const vehicles = await Vehicle.find({ owner: user._id }).select('_id').lean();
+      const vehicleIds = vehicles.map((v: any) => v._id);
+      query = {
+        $or: [
+          { driver: user._id },
+          { vehicle: { $in: vehicleIds } }
+        ]
+      };
     }
 
     if (status) {

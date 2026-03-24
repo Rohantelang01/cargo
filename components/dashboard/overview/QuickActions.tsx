@@ -44,16 +44,33 @@ export function QuickActions({ role }: QuickActionsProps) {
 
       {role === 'owner' && (
         <>
-          <Link href="/owner/vehicles/add">
+          <Link href="/dashboard/vehicles">
             <Button size="sm" className="gap-2">
               <Plus className="w-4 h-4" />
               Add Vehicle
             </Button>
           </Link>
-          <Button size="sm" variant="outline" className="gap-2">
-            <Settings className="w-4 h-4" />
-            Manage Fleet
+          <Link href="/dashboard/vehicles">
+            <Button size="sm" variant="outline" className="gap-2">
+              <Settings className="w-4 h-4" />
+              Manage Fleet
+            </Button>
+          </Link>
+        </>
+      )}
+      
+      {(role === 'self-driver' || role === 'self-driver-owner') && (
+        <>
+          <Button size="sm" className="gap-2">
+            <MapPin className="w-4 h-4" />
+            Go Online
           </Button>
+          <Link href="/dashboard/vehicles">
+            <Button size="sm" variant="outline" className="gap-2">
+              <Settings className="w-4 h-4" />
+              Vehicle Settings
+            </Button>
+          </Link>
         </>
       )}
     </div>

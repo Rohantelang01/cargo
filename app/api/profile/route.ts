@@ -116,7 +116,7 @@ export async function PATCH(request: NextRequest) {
           perKmRate: vehicleData.perKmRate,
           rcDocument: vehicleData.rcDocument || '',
           insurance: vehicleData.insurance || '',
-          isAvailable: vehicleData.isAvailable ?? true,
+          status: vehicleData.isAvailable ? 'AVAILABLE' : 'OFFLINE',
           requiredLicense: vehicleData.requiredLicense,
           selfDriven: vehicleData.selfDriven ?? false,
           owner: userId,
@@ -130,10 +130,13 @@ export async function PATCH(request: NextRequest) {
         await newVehicle.save({ session });
         console.log('Vehicle saved successfully');
 
-      } catch (error) {
+      } catch (error: any) {
         console.error('Error creating vehicle:', error);
         await session.abortTransaction();
-        return NextResponse.json({ error: 'Failed to create vehicle' }, { status: 500 });
+        return NextResponse.json({ 
+          error: 'Failed to create vehicle', 
+          details: error.message 
+        }, { status: 500 });
       }
 
       if (!newVehicle) {
@@ -149,37 +152,32 @@ export async function PATCH(request: NextRequest) {
       if (vehicleData.selfDriven && licenseData) {
         if (!user.driverInfo) user.driverInfo = { licenses: [] };
         
-        const LICENSE_VEHICLE_MAP: Record<string, string> = {
+        const LICENSE_VEHICLE_MAP_LOCAL: Record<string, string> = {
           'MCWOG': 'bike', 'MCG': 'bike',
           '3W-NT': 'auto', '3W-T': 'auto',
           'LMV-NT': 'car', 'LMV': 'car',
           'HMV': 'truck', 'HPMV': 'bus', 'HGV': 'truck'
         };
         
+        const licenseTypeToUpdate = licenseData.licenseType;
         const existingLicenseIndex = user.driverInfo?.licenses?.findIndex(
-          (license: any) => license.licenseType === licenseData.licenseType
+          (license: any) => license.licenseType === licenseTypeToUpdate
         );
+
+        const processedLicense = {
+          licenseType: licenseTypeToUpdate,
+          licenseNumber: licenseData.licenseNumber,
+          licenseImage: licenseData.licenseImage || 'https://via.placeholder.com/150?text=No+License+Image',
+          vehicleCategory: LICENSE_VEHICLE_MAP_LOCAL[licenseTypeToUpdate] || 'car',
+          hourlyRate: Number(licenseData.hourlyRate) || 0,
+          expiryDate: (licenseData.expiryDate && licenseData.expiryDate !== "") ? new Date(licenseData.expiryDate) : undefined,
+          isActive: true,
+        };
         
         if (existingLicenseIndex !== -1) {
-          user.driverInfo.licenses[existingLicenseIndex] = {
-            licenseType: licenseData.licenseType,
-            licenseNumber: licenseData.licenseNumber,
-            licenseImage: licenseData.licenseImage || '',
-            vehicleCategory: LICENSE_VEHICLE_MAP[licenseData.licenseType],
-            hourlyRate: licenseData.hourlyRate,
-            expiryDate: licenseData.expiryDate,
-            isActive: true,
-          };
+          user.driverInfo.licenses[existingLicenseIndex] = processedLicense;
         } else {
-          user.driverInfo.licenses.push({
-            licenseType: licenseData.licenseType,
-            licenseNumber: licenseData.licenseNumber,
-            licenseImage: licenseData.licenseImage || '',
-            vehicleCategory: LICENSE_VEHICLE_MAP[licenseData.licenseType],
-            hourlyRate: licenseData.hourlyRate,
-            expiryDate: licenseData.expiryDate,
-            isActive: true,
-          });
+          user.driverInfo.licenses.push(processedLicense);
         }
         
         newVehicle.assignedDriver = user._id;
@@ -264,7 +262,8 @@ export async function PATCH(request: NextRequest) {
     console.error('Error details:', JSON.stringify(error, null, 2));
     return NextResponse.json({ 
       success: false, 
-      error: errorMessage 
+      error: 'Failed to update profile',
+      details: errorMessage 
     }, { status: 500 });
   } finally {
     session.endSession();

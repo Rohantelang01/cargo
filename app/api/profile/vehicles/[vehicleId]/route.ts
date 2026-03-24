@@ -3,7 +3,19 @@ import { Vehicle } from '@/models/Vehicle';
 import { User } from '@/models/User';
 import connectToDB from '@/lib/db';
 import mongoose from 'mongoose';
-import { getTokenFromCookies } from '@/lib/auth'; // Assuming you have this helper
+import jwt from 'jsonwebtoken';
+
+const getTokenFromCookies = async (req: NextRequest) => {
+  const token = req.cookies.get("token")?.value;
+  if (!token) return null;
+  
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { id: string };
+    return decoded.id;
+  } catch (error) {
+    return null;
+  }
+};
 
 // GET a specific vehicle
 export async function GET(request: NextRequest, { params }: { params: { vehicleId: string } }) {
@@ -11,14 +23,19 @@ export async function GET(request: NextRequest, { params }: { params: { vehicleI
         await connectToDB();
         const userId = await getTokenFromCookies(request);
 
+        if (!userId) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
+
         const vehicle = await Vehicle.findOne({ _id: params.vehicleId, owner: userId }).lean();
 
         if (!vehicle) {
             return NextResponse.json({ error: 'Vehicle not found or you are not the owner' }, { status: 404 });
         }
         return NextResponse.json(vehicle);
-    } catch (error) {
-        // ... (Error handling)
+    } catch (error: any) {
+        console.error('Error fetching vehicle:', error);
+        return NextResponse.json({ error: 'Failed to fetch vehicle', details: error.message }, { status: 500 });
     }
 }
 
@@ -30,6 +47,12 @@ export async function PUT(request: NextRequest, { params }: { params: { vehicleI
     try {
         await connectToDB();
         const userId = await getTokenFromCookies(request);
+
+        if (!userId) {
+            await session.abortTransaction();
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
+
         const data = await request.json();
 
         // Ensure owner cannot be changed
@@ -42,29 +65,26 @@ export async function PUT(request: NextRequest, { params }: { params: { vehicleI
             return NextResponse.json({ error: 'Vehicle not found or you do not have permission' }, { status: 404 });
         }
 
-        // If the vehicle becomes self-driven, update the user model
-        if (data.selfDriven && !vehicle.selfDriven) {
-            const user = await User.findById(userId).session(session);
-            // This assumes a license is provided when making a vehicle self-driven
-            if (data.licenseData) {
-                user.driverInfo.licenses.push(data.licenseData);
-                if (!user.roles.includes('driver')) {
-                    user.roles.push('driver');
-                }
-                await user.save({ session });
-            }
-            vehicle.assignedDriver = userId;
+        // Handle isAvailable to status conversion
+        if (data.isAvailable !== undefined) {
+            data.status = data.isAvailable ? 'AVAILABLE' : 'OFFLINE';
+            delete data.isAvailable;
         }
 
+        // Update vehicle fields
         Object.assign(vehicle, data);
         await vehicle.save({ session });
         
         await session.commitTransaction();
         return NextResponse.json({ success: true, vehicle });
 
-    } catch (error) {
+    } catch (error: any) {
         await session.abortTransaction();
-        // ... (Error handling)
+        console.error('Error updating vehicle:', error);
+        return NextResponse.json({ 
+            error: 'Failed to update vehicle', 
+            details: error.message 
+        }, { status: 500 });
     } finally {
         session.endSession();
     }
@@ -77,6 +97,11 @@ export async function DELETE(request: NextRequest, { params }: { params: { vehic
     try {
         await connectToDB();
         const userId = await getTokenFromCookies(request);
+
+        if (!userId) {
+            await session.abortTransaction();
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
 
         const vehicle = await Vehicle.findOne({ _id: params.vehicleId, owner: userId });
 
@@ -93,13 +118,16 @@ export async function DELETE(request: NextRequest, { params }: { params: { vehic
         // Note: The new model summary doesn't explicitly mention ownerInfo, but if it exists, it should be updated.
         // await User.findByIdAndUpdate(userId, { $pull: { 'ownerInfo.vehicles': params.vehicleId } }).session(session);
 
-
         await session.commitTransaction();
         return NextResponse.json({ success: true, message: 'Vehicle deleted successfully' });
 
-    } catch (error) {
+    } catch (error: any) {
         await session.abortTransaction();
-        // ... (Error handling)
+        console.error('Error deleting vehicle:', error);
+        return NextResponse.json({ 
+            error: 'Failed to delete vehicle', 
+            details: error.message 
+        }, { status: 500 });
     } finally {
         session.endSession();
     }

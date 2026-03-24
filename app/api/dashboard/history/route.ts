@@ -33,6 +33,9 @@ export async function GET(req: NextRequest) {
     if (role === 'passenger') query.passenger = user._id;
     else if (role === 'driver') query.driver = user._id;
     else if (role === 'owner') query.owner = user._id;
+    else if (role === 'self-driver') {
+      query.$or = [{ driver: user._id }, { owner: user._id }];
+    }
 
     const history = await Booking.find(query)
       .populate('passenger', 'name profileImage')

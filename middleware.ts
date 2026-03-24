@@ -23,7 +23,7 @@ export async function middleware(req: NextRequest) {
         const roles = (payload as { roles?: unknown })?.roles;
         const roleList = Array.isArray(roles) ? roles : [];
         if (!roleList.includes("admin")) {
-          return NextResponse.redirect(new URL("/dashboard/passenger", req.url));
+          return NextResponse.redirect(new URL("/dashboard/overview", req.url));
         }
       }
       
@@ -50,7 +50,7 @@ export async function middleware(req: NextRequest) {
       const roles = (payload as { roles?: unknown })?.roles;
       const roleList = Array.isArray(roles) ? roles : [];
       if (!roleList.includes("admin")) {
-        return NextResponse.redirect(new URL("/dashboard/passenger", req.url));
+        return NextResponse.redirect(new URL("/dashboard/overview", req.url));
       }
       
       return NextResponse.next();

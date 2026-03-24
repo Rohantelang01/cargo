@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "seed": "ts-node scripts/seed-working.ts",
+    "seed-demo": "ts-node scripts/seed-demo-users.ts",
     "seed-old": "ts-node scripts/seed-new.ts",
     "clear-db": "ts-node scripts/clear-db.ts",
     "migrate": "ts-node scripts/migrate-models.ts"

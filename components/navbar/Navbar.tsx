@@ -3,6 +3,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Menu } from 'lucide-react';
 import NavLinks from './NavLinks';
 import ThemeToggle from './ThemeToggle';
@@ -26,13 +27,13 @@ const Navbar: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             {/* Logo/Site Name */}
-            <div className="flex-shrink-0">
-              <Link href="/" className="flex items-center group">
-                <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center mr-3 group-hover:scale-105 transition-transform duration-200">
-                  <span className="text-white font-bold text-lg">R</span>
+            <div className="flex-shrink-0 flex items-center">
+              <Link href="/" className="flex items-center justify-center group">
+                <div className="flex items-center justify-center group-hover:scale-105 transition-transform duration-200 mr-2">
+                  <Image src="/cargo_logo2.png" alt="Cargo Website Logo" width={240} height={180} className="w-16 h-12 md:w-24 md:h-16 object-contain" priority />
                 </div>
-                <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                  RideShareX
+                <span className="text-2xl font-sprintura tracking-normal uppercase bg-gradient-to-r from-blue-600 to-red-600 bg-clip-text text-transparent">
+                  CARGO
                 </span>
               </Link>
             </div>

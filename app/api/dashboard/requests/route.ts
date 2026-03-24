@@ -71,16 +71,19 @@ export async function GET(req: NextRequest) {
         .sort({ requestedAt: -1 })
         .limit(50)
         .lean() as any[];
-    } else if (role === 'self-driver') {
-      // Self drivers only see combo trip requests (isCombo: true)
+    } else if (role === 'self-driver' || role === 'self-driver-owner') {
+      const targetStatus = status || 'PENDING';
       const query: any = { 
-        'pair.driver': user._id,
-        'pair.isCombo': true, // Self driver indicator
-        driverResponse: status || 'PENDING'
+        $or: [
+          { 'pair.driver': user._id, driverResponse: targetStatus },
+          { 'pair.owner': user._id, ownerResponse: targetStatus }
+        ]
       };
 
       requests = await BookingRequest.find(query)
         .populate('passenger', 'name phone publicInfo.rating profileImage')
+        .populate('pair.driver', 'name phone driverInfo.rating profileImage')
+        .populate('pair.owner', 'name phone ownerInfo.rating profileImage') 
         .populate('pair.vehicle', 'make model year vehicleType')
         .populate('booking', 'pickup dropoff bookingType scheduledDateTime passengers')
         .sort({ requestedAt: -1 })

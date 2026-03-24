@@ -61,6 +61,14 @@ const defaultVehicleValues = {
   isAvailable: true,
   requiredLicense: "LMV" as const,
   selfDriven: false,
+  licenseData: {
+    licenseType: "LMV" as const,
+    licenseNumber: "",
+    licenseImage: "",
+    vehicleCategory: "car",
+    hourlyRate: 50,
+    expiryDate: "",
+  },
 };
 
 interface VehicleInformationFormProps {
@@ -149,6 +157,28 @@ const VehicleInformationForm = ({ ownerId, onSave, onDelete, isLoading, onCancel
     }
   };
 
+  const updateVehicle = async (vehicleId: string, payload: any) => {
+    try {
+      const response = await fetch(`/api/profile/vehicles/${vehicleId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${getToken()}`,
+        },
+        body: JSON.stringify(payload.vehicleData),
+      });
+
+      const result = await response.json();
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to update vehicle');
+      }
+      return { success: true };
+    } catch (error: any) {
+      console.error('Error updating vehicle:', error);
+      return { success: false, error: error.message };
+    }
+  };
+
   useEffect(() => { fetchVehicles(); }, [ownerId]);
 
   const handleEditVehicle = (vehicle: Vehicle) => {
@@ -234,7 +264,15 @@ const VehicleInformationForm = ({ ownerId, onSave, onDelete, isLoading, onCancel
       }
 
       console.log('Submitting vehicle data:', payload);
-      const result = await onSave(payload);
+      
+      let result;
+      if (editingVehicle) {
+        // Update existing vehicle
+        result = await updateVehicle(editingVehicle, payload);
+      } else {
+        // Create new vehicle
+        result = await onSave(payload);
+      }
       
       if (result.success) {
         await fetchVehicles();
@@ -339,21 +377,8 @@ const VehicleInformationForm = ({ ownerId, onSave, onDelete, isLoading, onCancel
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField control={form.control} name="perKmRate" render={({ field }) => (<FormItem><FormLabel>Per km Rate (₹) *</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>)} />
                 <FormField control={form.control} name="requiredLicense" render={({ field }) => (
-                  <FormItem><FormLabel>Required License *</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <FormControl><SelectTrigger><SelectValue placeholder="Select license" /></SelectTrigger></FormControl>
-                      <SelectContent>
-                        <SelectItem value="MCWOG">MCWOG</SelectItem>
-                        <SelectItem value="MCG">MCG</SelectItem>
-                        <SelectItem value="3W-NT">3W-NT</SelectItem>
-                        <SelectItem value="3W-T">3W-T</SelectItem>
-                        <SelectItem value="LMV-NT">LMV-NT</SelectItem>
-                        <SelectItem value="LMV">LMV</SelectItem>
-                        <SelectItem value="HMV">HMV</SelectItem>
-                        <SelectItem value="HPMV">HPMV</SelectItem>
-                        <SelectItem value="HGV">HGV</SelectItem>
-                      </SelectContent>
-                    </Select>
+                  <FormItem><FormLabel>Required License (auto-filled) *</FormLabel>
+                    <FormControl><Input {...field} value={field.value || ""} disabled className="bg-gray-100" /></FormControl>
                   <FormMessage /></FormItem>
                 )} />
               </div>
@@ -383,54 +408,38 @@ const VehicleInformationForm = ({ ownerId, onSave, onDelete, isLoading, onCancel
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
                     <FormField control={form.control} name="licenseData.licenseType" render={({ field }) => (
-                      <FormItem><FormLabel>License Type *</FormLabel>
-                        <Select onValueChange={(val) => {
-                          field.onChange(val);
-                          form.setValue('licenseData.vehicleCategory', LICENSE_VEHICLE_MAP[val] || '');
-                        }} value={field.value}>
-                          <FormControl><SelectTrigger><SelectValue placeholder="Select license type" /></SelectTrigger></FormControl>
-                          <SelectContent>
-                            <SelectItem value="MCWOG">MCWOG — Scooty</SelectItem>
-                            <SelectItem value="MCG">MCG — Bike</SelectItem>
-                            <SelectItem value="3W-NT">3W-NT — Auto Personal</SelectItem>
-                            <SelectItem value="3W-T">3W-T — Auto Commercial</SelectItem>
-                            <SelectItem value="LMV-NT">LMV-NT — Car Personal</SelectItem>
-                            <SelectItem value="LMV">LMV — Car Taxi</SelectItem>
-                            <SelectItem value="HMV">HMV — Truck</SelectItem>
-                            <SelectItem value="HPMV">HPMV — Bus</SelectItem>
-                            <SelectItem value="HGV">HGV — Goods Truck</SelectItem>
-                          </SelectContent>
-                        </Select>
+                      <FormItem><FormLabel>License Type (auto-filled) *</FormLabel>
+                        <FormControl><Input {...field} disabled value={field.value || ""} className="bg-gray-100" /></FormControl>
                       <FormMessage /></FormItem>
                     )} />
 
                     <FormField control={form.control} name="licenseData.vehicleCategory" render={({ field }) => (
                       <FormItem><FormLabel>Vehicle Category (auto-filled)</FormLabel>
-                        <FormControl><Input {...field} disabled className="bg-gray-100" /></FormControl>
+                        <FormControl><Input {...field} value={field.value || ""} disabled className="bg-gray-100" /></FormControl>
                       <FormMessage /></FormItem>
                     )} />
 
                     <FormField control={form.control} name="licenseData.licenseNumber" render={({ field }) => (
                       <FormItem><FormLabel>License Number *</FormLabel>
-                        <FormControl><Input placeholder="MH1234567890" {...field} /></FormControl>
+                        <FormControl><Input placeholder="MH1234567890" {...field} value={field.value || ""} /></FormControl>
                       <FormMessage /></FormItem>
                     )} />
 
                     <FormField control={form.control} name="licenseData.hourlyRate" render={({ field }) => (
                       <FormItem><FormLabel>Hourly Rate (₹) *</FormLabel>
-                        <FormControl><Input type="number" placeholder="e.g., 150" {...field} /></FormControl>
+                        <FormControl><Input type="number" placeholder="e.g., 150" {...field} value={field.value || ""} /></FormControl>
                       <FormMessage /></FormItem>
                     )} />
 
                     <FormField control={form.control} name="licenseData.licenseImage" render={({ field }) => (
                       <FormItem><FormLabel>License Image URL</FormLabel>
-                        <FormControl><Input placeholder="https://example.com/license.jpg" {...field} /></FormControl>
+                        <FormControl><Input placeholder="https://example.com/license.jpg" {...field} value={field.value || ""} /></FormControl>
                       <FormMessage /></FormItem>
                     )} />
 
                     <FormField control={form.control} name="licenseData.expiryDate" render={({ field }) => (
                       <FormItem><FormLabel>Expiry Date</FormLabel>
-                        <FormControl><Input type="date" {...field} /></FormControl>
+                        <FormControl><Input type="date" {...field} value={field.value || ""} /></FormControl>
                       <FormMessage /></FormItem>
                     )} />
 

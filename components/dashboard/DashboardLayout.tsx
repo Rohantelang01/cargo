@@ -12,7 +12,8 @@ import {
   LogOut,
   Bell,
   Menu,
-  ChevronRight
+  ChevronRight,
+  Car
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -40,7 +41,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       try {
         const response = await fetch('/api/profile');
         const data = await response.json();
-        setVehicles(data.user?.ownerInfo?.vehicles || []);
+        // API returns user object directly for GET, but { user } for PATCH. 
+        // We handle both or just the direct object if data.user is missing.
+        const profileData = data.user || data;
+        setVehicles(profileData.ownerInfo?.vehicles || []);
       } catch (error) {
         console.error('Error fetching vehicles:', error);
       }
@@ -51,67 +55,93 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     }
   }, [user]);
 
-  // Helper function to determine user type
-  const getUserDashboardType = (user: any, vehicles: any[]) => {
-    const hasDriver = user?.roles?.includes('driver');
-    const hasOwner = user?.roles?.includes('owner');
-    
-    // Check if user has self-driven vehicles
-    const hasSelfDrivenVehicle = vehicles?.some((v: any) => v.selfDriven === true);
-    
-    // Self Driver: has both driver + owner roles AND has selfDriven vehicle
-    if (hasDriver && hasOwner && hasSelfDrivenVehicle) {
-      return 'self-driver';
+  // Update role dynamically once vehicles are fetched
+  useEffect(() => {
+    if (vehicles.length > 0 && currentRole === 'passenger') {
+      const hasDriver = user?.roles?.includes('driver');
+      const hasOwner = user?.roles?.includes('owner');
+      const hasSelfDrivenVehicle = vehicles.some((v: any) => v.selfDriven === true);
+      const hasOwnerVehicle = vehicles.some((v: any) => v.selfDriven === false);
+      
+      if (hasDriver && hasOwner && hasSelfDrivenVehicle && hasOwnerVehicle) {
+        setCurrentRole('self-driver-owner');
+      } else if (hasDriver && hasOwner && hasSelfDrivenVehicle) {
+        setCurrentRole('self-driver');
+      } else if (hasOwner && (hasOwnerVehicle || !hasSelfDrivenVehicle)) {
+        setCurrentRole('owner');
+      } else if (hasDriver) {
+        setCurrentRole('driver');
+      }
     }
-    
-    // Pure Owner: has owner role but NO selfDriven vehicles (or no driver role)
-    if (hasOwner && !hasSelfDrivenVehicle) {
-      return 'owner';
-    }
-    
-    // Pure Driver: has driver role but no owner role (FUTURE - not active yet)
-    if (hasDriver && !hasOwner) {
-      return 'driver';
-    }
-    
-    // Default: Passenger
-    return 'passenger';
-  };
+  }, [vehicles, user, currentRole, setCurrentRole]);
 
-  const navigation = [
-    { name: 'Overview', href: '/dashboard/overview', icon: LayoutDashboard },
-    { name: 'Requests', href: '/dashboard/requests', icon: Inbox },
-    { name: 'Active Trips', href: '/dashboard/trips', icon: MapPin },
-    { name: 'History', href: '/dashboard/history', icon: History },
-    { name: 'Earnings', href: '/dashboard/earnings', icon: Wallet },
-  ];
+  // Dynamic navigation items based on current role
+  const filteredNavigation = useMemo(() => {
+    const base = [
+      { name: 'Overview', href: '/dashboard/overview', icon: LayoutDashboard },
+    ];
+
+    if (currentRole === 'passenger') {
+      return [
+        ...base,
+        { name: 'My Rides', href: '/dashboard/trips', icon: MapPin },
+        { name: 'History', href: '/dashboard/history', icon: History },
+        { name: 'Wallet', href: '/wallet', icon: Wallet },
+      ];
+    }
+
+    const items = [...base];
+
+    // Requests (Driving/Pair/Booking)
+    items.push({ name: 'Requests', href: '/dashboard/requests', icon: Inbox });
+    
+    // Active Trips
+    items.push({ name: 'Active Trips', href: '/dashboard/trips', icon: MapPin });
+
+    // Vehicles (Owner/Self Driver)
+    if (currentRole === 'owner' || currentRole === 'self-driver' || currentRole === 'self-driver-owner') {
+      items.push({ name: 'Vehicles', href: '/dashboard/vehicles', icon: Car });
+    }
+
+    // History & Earnings
+    items.push({ name: 'History', href: '/dashboard/history', icon: History });
+    items.push({ name: 'Earnings', href: '/dashboard/earnings', icon: Wallet });
+
+    return items;
+  }, [currentRole]);
 
   const navigationItems = useMemo(() => {
     const hasDriver = user?.roles?.includes('driver');
     const hasOwner = user?.roles?.includes('owner');
     
-    // Check for selfDriven vehicles
+    // Check for selfDriven vs owner vehicles
     const hasSelfDrivenVehicle = vehicles?.some((v: any) => v.selfDriven === true);
+    const hasOwnerVehicle = vehicles?.some((v: any) => v.selfDriven === false);
     
     const items = [];
     
     // Always show Passenger (everyone is a passenger)
-    items.push({ label: 'Passenger Mode', value: 'passenger', href: '/dashboard/passenger' });
+    items.push({ label: 'Passenger Mode', value: 'passenger' });
     
-    // Self Driver Mode (driver + owner + selfDriven vehicle)
+    // Self Driver + Owner Mode
+    if (hasDriver && hasOwner && hasSelfDrivenVehicle && hasOwnerVehicle) {
+      items.push({ label: 'Self Driver + Owner', value: 'self-driver-owner' });
+    }
+
+    // Self Driver Mode
     if (hasDriver && hasOwner && hasSelfDrivenVehicle) {
-      items.push({ label: 'Self Driver Mode', value: 'self-driver', href: '/dashboard/self-driver' });
+      items.push({ label: 'Self Driver Mode', value: 'self-driver' });
     }
     
-    // Owner Mode (owner without selfDriven vehicles)
-    if (hasOwner && !hasSelfDrivenVehicle) {
-      items.push({ label: 'Owner Mode', value: 'owner', href: '/dashboard/owner' });
+    // Owner Mode
+    if (hasOwner && (hasOwnerVehicle || !hasSelfDrivenVehicle)) {
+      items.push({ label: 'Owner Mode', value: 'owner' });
     }
     
-    // Pure Driver Mode - HIDE FOR NOW (future feature)
-    // if (hasDriver && !hasOwner) {
-    //   items.push({ label: 'Driver Mode', value: 'driver', href: '/dashboard/driver' });
-    // }
+    // Driver Mode
+    if (hasDriver) {
+      items.push({ label: 'Driver Mode', value: 'driver' });
+    }
     
     return items;
   }, [user, vehicles]);
@@ -152,7 +182,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       </div>
 
       <nav className="flex-1 px-2 space-y-1">
-        {navigation.map((item) => {
+        {filteredNavigation.map((item) => {
           const isActive = pathname === item.href;
           return (
             <Link
@@ -223,6 +253,29 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </div>
 
           <div className="flex items-center gap-2 md:gap-4">
+            {/* Role Switcher */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm" className="hidden md:flex gap-2">
+                  <span className="capitalize">{currentRole.replace(/-/g, ' ')}</span>
+                  <ChevronRight className="w-4 h-4 rotate-90" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuLabel>Switch Mode</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                {navigationItems.map((item) => (
+                  <DropdownMenuItem
+                    key={item.value}
+                    onClick={() => setCurrentRole(item.value as any)}
+                    className={currentRole === item.value ? "bg-secondary" : ""}
+                  >
+                    {item.label}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+
             <Button variant="ghost" size="icon" className="relative">
               <Bell className="w-5 h-5" />
               <span className="absolute top-2 right-2 w-2 h-2 bg-destructive rounded-full" />

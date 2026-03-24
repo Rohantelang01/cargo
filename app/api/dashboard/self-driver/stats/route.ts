@@ -64,7 +64,7 @@ export async function GET(req: NextRequest) {
     const totalEarnings = wallet?.generatedBalance || 0;
 
     // Incoming requests
-    const BookingRequest = (await import("@/models/BookingRequest")).default;
+    const { BookingRequest } = await import("@/models/BookingRequest");
     const incomingRequests = await BookingRequest.countDocuments({
       'pair.driver': user._id,
       'pair.isCombo': true, // Self driver = combo trip
